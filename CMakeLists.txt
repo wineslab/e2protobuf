@@ -12,4 +12,5 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR} common)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -g -O0")
 
 add_executable(simple simple.c ${PROTO_SRCS} ${PROTO_HDRS} E2_requests.h)
-add_executable(gnb_e2_emu gnb_e2_emu.c ${PROTO_SRCS} ${PROTO_HDRS} E2_requests.h gnb_e2_emu.c gnb_connector.c gnb_connector.h common/e2prtbf_common.c common/e2prtbf_common.h)
+add_executable(gnb_e2server_emu gnb_e2server_emu.c ${PROTO_SRCS} ${PROTO_HDRS} E2_requests.h gnb_e2server_emu.c common/e2prtbf_common.c common/e2prtbf_common.h)
+add_executable(e2_term_emu e2term_emu.c ${PROTO_SRCS} ${PROTO_HDRS} E2_requests.h e2_client_api.h e2_client_api.c common/e2prtbf_common.c common/e2prtbf_common.h)

@@ -1,9 +1,6 @@
 //
 // Created by Eugenio Moro on 24/06/22.
 //
-
-#include "gnb_connector.h"
-
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
@@ -27,16 +24,39 @@
  */
 
 
-/* Handle one arriving client connection.
- * Clients are expected to send a ListFilesRequest, terminated by a '0'.
- * Server will respond with a ListFilesResponse message.
- */
-
-void build_dummy_response(E2_REQID_t req_id, E2_dummy_response* rsp){
-    rsp->req_id = 1;
+void build_send_dummy_response(E2_REQID_t req_id, E2_dummy_response* rsp, int connfd){
+    rsp->req_id = 100;
     rsp->req_id = req_id;
-    strcpy(rsp->mess_string,"dummy response");
+    strcpy(rsp->mess_string,"Hi, this is a dummy response!!");
+    printf("dioca: %s\n",rsp->mess_string);
     rsp->result = true;
+    pb_ostream_t output = pb_ostream_from_socket(connfd);
+    if (!pb_encode_delimited(&output, E2_dummy_response_fields, rsp)) {
+        printf("Encoding failed: %s\n", PB_GET_ERROR(&output));
+    }
+    printf("Encoded in %lu bytes\n", output.bytes_written);
+}
+
+void build_send_dummy_response2(E2_REQID_t req_id, E2_dummy_response* rsp2, int connfd){
+    E2_dummy_response rsp = E2_dummy_response_init_zero;
+    rsp.req_id = 100;
+    rsp.req_id = req_id;
+    strcpy(rsp.mess_string,"Hi, this is a dummy response!!");
+    printf("dioca: %s\n",rsp.mess_string);
+    rsp.result = true;
+    pb_ostream_t output = pb_ostream_from_socket(connfd);
+    if (!pb_encode_delimited(&output, E2_dummy_response_fields, &rsp)) {
+        printf("Encoding failed: %s\n", PB_GET_ERROR(&output));
+    }
+    printf("Encoded in %lu bytes\n", output.bytes_written);
+}
+
+void ship_response(pb_msgdesc_t msg_descriptor, void* response, int connfd){
+    pb_ostream_t output = pb_ostream_from_socket(connfd);
+    if (!pb_encode_delimited(&output, &msg_descriptor, response)) {
+        printf("Encoding failed: %s\n", PB_GET_ERROR(&output));
+    }
+    printf("Encoded in %lu bytes\n", output.bytes_written);
 }
 
 void handle_connection(int connfd) {
@@ -51,35 +71,17 @@ void handle_connection(int connfd) {
     switch (request.req_id++) {
         case E2_REQID_DUMMY1:{
             E2_dummy_response* rsp = malloc(E2_dummy_response_size);
-            build_dummy_response(E2_REQID_DUMMY1,rsp);
+            build_send_dummy_response2(E2_REQID_DUMMY1,rsp, connfd);
+            //ship_response(E2_dummy_response_msg,rsp,connfd);
+            free(rsp);
+            break;
         }
         case E2_REQID_DUMMY2:
             break;
         default:
-            printf("Unrecognized request id %d\n",request.id);
+            printf("Unrecognized request id %d\n",request.req_id);
+            break;
     }
-    ListFilesResponse response = {};
-    pb_ostream_t output = pb_ostream_from_socket(connfd);
-
-    if (directory == NULL) {
-        perror("opendir");
-
-        /* Directory was not found, transmit error status */
-        response.has_path_error = true;
-        response.path_error = true;
-    } else {
-        /* Directory was found, transmit filenames */
-        response.has_path_error = false;
-        response.file = directory;
-    }
-
-    if (!pb_encode_delimited(&output, ListFilesResponse_fields, &response)) {
-        printf("Encoding failed: %s\n", PB_GET_ERROR(&output));
-    }
-
-
-    if (directory != NULL)
-        closedir(directory);
 }
 
 int main(int argc, char **argv) {
@@ -87,6 +89,7 @@ int main(int argc, char **argv) {
     struct sockaddr_in servaddr;
     int reuse = 1;
 
+    printf("Starting e2server emulator\n");
     /* Listen on localhost:1234 for TCP connections */
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
     setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
@@ -104,7 +107,7 @@ int main(int argc, char **argv) {
         perror("listen");
         return 1;
     }
-
+    printf("Waiting for TCP connections on localhost:1234...\n");
     for (;;) {
         /* Wait for a client */
         connfd = accept(listenfd, NULL, NULL);
@@ -113,9 +116,8 @@ int main(int argc, char **argv) {
             perror("accept");
             return 1;
         }
-
         printf("Got connection.\n");
-
+        //sleep(5);
         handle_connection(connfd);
 
         printf("Closing connection.\n");
