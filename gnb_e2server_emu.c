@@ -23,29 +23,19 @@
  * immediately.
  */
 
+void build_dummy_response(E2_REQID_t req_id, E2_dummy_response* rsp, int connfd){
+    rsp->req_id = req_id;
+    strcpy(rsp->mess_string,"Hi, this is a dummy response!!");
+    rsp->result = true;
+}
 
 void build_send_dummy_response(E2_REQID_t req_id, E2_dummy_response* rsp, int connfd){
     rsp->req_id = 100;
     rsp->req_id = req_id;
     strcpy(rsp->mess_string,"Hi, this is a dummy response!!");
-    printf("dioca: %s\n",rsp->mess_string);
     rsp->result = true;
     pb_ostream_t output = pb_ostream_from_socket(connfd);
     if (!pb_encode_delimited(&output, E2_dummy_response_fields, rsp)) {
-        printf("Encoding failed: %s\n", PB_GET_ERROR(&output));
-    }
-    printf("Encoded in %lu bytes\n", output.bytes_written);
-}
-
-void build_send_dummy_response2(E2_REQID_t req_id, E2_dummy_response* rsp2, int connfd){
-    E2_dummy_response rsp = E2_dummy_response_init_zero;
-    rsp.req_id = 100;
-    rsp.req_id = req_id;
-    strcpy(rsp.mess_string,"Hi, this is a dummy response!!");
-    printf("dioca: %s\n",rsp.mess_string);
-    rsp.result = true;
-    pb_ostream_t output = pb_ostream_from_socket(connfd);
-    if (!pb_encode_delimited(&output, E2_dummy_response_fields, &rsp)) {
         printf("Encoding failed: %s\n", PB_GET_ERROR(&output));
     }
     printf("Encoded in %lu bytes\n", output.bytes_written);
@@ -56,7 +46,7 @@ void ship_response(pb_msgdesc_t msg_descriptor, void* response, int connfd){
     if (!pb_encode_delimited(&output, &msg_descriptor, response)) {
         printf("Encoding failed: %s\n", PB_GET_ERROR(&output));
     }
-    printf("Encoded in %lu bytes\n", output.bytes_written);
+    // printf("Encoded in %lu bytes\n", output.bytes_written);
 }
 
 void handle_connection(int connfd) {
@@ -71,13 +61,18 @@ void handle_connection(int connfd) {
     switch (request.req_id++) {
         case E2_REQID_DUMMY1:{
             E2_dummy_response* rsp = malloc(E2_dummy_response_size);
-            build_send_dummy_response2(E2_REQID_DUMMY1,rsp, connfd);
-            //ship_response(E2_dummy_response_msg,rsp,connfd);
+            build_dummy_response(E2_REQID_DUMMY1,rsp, connfd);
+            ship_response(E2_dummy_response_msg,rsp,connfd);
             free(rsp);
             break;
         }
-        case E2_REQID_DUMMY2:
+        case E2_REQID_DUMMY2: {
+            E2_dummy_response *rsp = malloc(E2_dummy_response_size);
+            build_dummy_response(E2_REQID_DUMMY2, rsp, connfd);
+            ship_response(E2_dummy_response_msg, rsp, connfd);
+            free(rsp);
             break;
+        }
         default:
             printf("Unrecognized request id %d\n",request.req_id);
             break;

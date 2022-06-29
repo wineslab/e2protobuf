@@ -22,8 +22,15 @@ int main(int argc, char **argv){
 
     E2_dummy_response* rsp;// = E2_dummy_response_init_zero;
     rsp = (E2_dummy_response*) malloc(E2_dummy_response_size);
-    //strcpy(rsp.mess_string,"mannaia cristo");
     if (e2_api_DUMMY_transaction(rsp)){
+        printf("Dummy transaction successful, message: %s - id: %d\n", rsp->mess_string, rsp->req_id);
+    } else {
+        printf("Dummy transaction failed\n");
+    }
+
+    sleep(3);
+
+    if (e2_api_DUMMY_transaction_type2(rsp)){
         printf("Dummy transaction successful, message: %s - id: %d\n", rsp->mess_string, rsp->req_id);
     } else {
         printf("Dummy transaction failed\n");

@@ -29,3 +29,4 @@ bool e2_api_connect();
 
 bool e2_api_DUMMY_transaction(E2_dummy_response *rsp);
 void e2_api_register_callback();
+bool e2_api_DUMMY_transaction_type2(E2_dummy_response *rsp);
