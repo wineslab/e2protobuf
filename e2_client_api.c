@@ -11,12 +11,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <pb_encode.h>
-#include <pb_decode.h>
+#include "pb_encode.h"
+#include "pb_decode.h"
 #include <arpa/inet.h>
 #include <stdlib.h>
 
-#include "e2.pb.h"
+#include "proto/e2.pb.h"
 #include "e2prtbf_common.h"
 #include "E2_requests.h"
 
@@ -54,15 +54,21 @@ bool e2_api_connect() {
         printf("Socket creation failed...\n");
         return false;
     }
-    int ret = connect(socket_fd, (struct sockaddr *)&servaddr, sizeof(servaddr));
-    if (ret == 0){
-        ostream = pb_ostream_from_socket(socket_fd);
-        istream = pb_istream_from_socket(socket_fd);
-        return true;
-    } else {
-        printf("Socket connection failed with error %d...\n",ret);
-        return false;
-    }
+    int ret = 0;
+    do {
+        ret = connect(socket_fd, (struct sockaddr *) &servaddr, sizeof(servaddr));
+        if (ret == 0) {
+            ostream = pb_ostream_from_socket(socket_fd);
+            istream = pb_istream_from_socket(socket_fd);
+            return true;
+        } else {
+            printf("Socket connection failed with error %d...\n", ret);
+            //return false;
+            printf("Waiting 3 seconds before retrying\n");
+            sleep(3);
+        }
+    } while (ret != 0);
+    return false;
 }
 
 bool e2_api_DUMMY_transaction(E2_dummy_response *rsp) {

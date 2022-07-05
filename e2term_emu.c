@@ -2,7 +2,7 @@
 // Created by Eugenio Moro on 28/06/22.
 //
 #include "e2_client_api.h"
-#include "e2.pb.h"
+#include "proto/e2.pb.h"
 #include "e2prtbf_common.h"
 #include "E2_requests.h"
 #include <stdlib.h>

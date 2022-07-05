@@ -15,11 +15,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <pb_encode.h>
-#include <pb_decode.h>
+#include "pb_encode.h"
+#include "pb_decode.h"
 #include <arpa/inet.h>
 
-#include "e2.pb.h"
+#include "proto/e2.pb.h"
 #include "e2prtbf_common.h"
 #include "E2_requests.h"
 
