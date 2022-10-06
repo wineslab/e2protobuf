@@ -10,11 +10,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <pb_encode.h>
-#include <pb_decode.h>
+#include "proto/e2.pb-c.h"
 
-#include "e2.pb.h"
-#include "e2prtbf_common.h"
 #include "E2_requests.h"
 
 /* This callback function will be called during the encoding.
@@ -23,24 +20,37 @@
  * immediately.
  */
 
-void build_dummy_response(E2_REQID_t req_id, E2_dummy_response* rsp, int connfd){
-    rsp->req_id = req_id;
-    strcpy(rsp->mess_string,"Hi, this is a dummy response!!");
-    rsp->result = true;
+void build_dummy_response(E2_REQID_t req_id, int connfd){
+    /*
+    E2DummyResponse rsp = E2_DUMMY_RESPONSE__INIT;
+    rsp.req_id = req_id;
+    rsp.mess_string = "ciao";
+    rsp.result = 0;
+*/
 }
 
-void build_send_dummy_response(E2_REQID_t req_id, E2_dummy_response* rsp, int connfd){
-    rsp->req_id = 100;
-    rsp->req_id = req_id;
-    strcpy(rsp->mess_string,"Hi, this is a dummy response!!");
-    rsp->result = true;
-    pb_ostream_t output = pb_ostream_from_socket(connfd);
-    if (!pb_encode_delimited(&output, E2_dummy_response_fields, rsp)) {
-        printf("Encoding failed: %s\n", PB_GET_ERROR(&output));
-    }
-    printf("Encoded in %lu bytes\n", output.bytes_written);
+void build_send_dummy_response(E2_REQID_t req_id, int connfd){
+    // build response
+    E2DummyResponse rsp = E2_DUMMY_RESPONSE__INIT;
+    rsp.req_id = 100;
+    rsp.req_id = req_id;
+    //char st[] = "Hi, this is a dummy response!!";
+    rsp.mess_string =  "Hi, this is a dummy response!!";
+    rsp.result = 1; 
+
+    // encode to buffer
+    unsigned buflen = e2_dummy_response__get_packed_size(&rsp);
+    void* buf = malloc(buflen);
+    e2_dummy_response__pack(&rsp, buf);
+    /*
+    printf("dummy built and packed to buffer\n");
+    E2DummyResponse* decmsg;
+    decmsg = e2_dummy_response__unpack(NULL, buflen, buf);
+    printf("decoded string %s\n", decmsg->mess_string);
+    */
 }
 
+/*
 void ship_response(pb_msgdesc_t msg_descriptor, void* response, int connfd){
     pb_ostream_t output = pb_ostream_from_socket(connfd);
     if (!pb_encode_delimited(&output, &msg_descriptor, response)) {
@@ -48,9 +58,10 @@ void ship_response(pb_msgdesc_t msg_descriptor, void* response, int connfd){
     }
     // printf("Encoded in %lu bytes\n", output.bytes_written);
 }
+*/
 
 void handle_connection(int connfd) {
-
+/*
     E2_request request = {};
     pb_istream_t input = pb_istream_from_socket(connfd);
     if (!pb_decode_delimited(&input, E2_request_fields, &request)) {
@@ -77,34 +88,49 @@ void handle_connection(int connfd) {
             printf("Unrecognized request id %d\n",request.req_id);
             break;
     }
+    */
 }
 
 int main(int argc, char **argv) {
-    int listenfd, connfd;
-    struct sockaddr_in servaddr;
+    int in_sockfd;
+    struct sockaddr_in servaddr,cliaddr;
     int reuse = 1;
+    int port = 6655;
+
 
     printf("Starting e2server emulator\n");
-    /* Listen on localhost:1234 for TCP connections */
-    listenfd = socket(AF_INET, SOCK_STREAM, 0);
-    setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+    /* Listen on localhost:port for UDP connections */
 
+    // create socket
+    if((in_sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0){
+        perror("Failed to create in socket\n");
+        exit(EXIT_FAILURE);
+    }
+    setsockopt(in_sockfd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+
+    // bind to localhost
     memset(&servaddr, 0, sizeof(servaddr));
+    memset(&cliaddr, 0, sizeof(cliaddr));
+    
     servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    servaddr.sin_port = htons(1234);
-    if (bind(listenfd, (struct sockaddr *) &servaddr, sizeof(servaddr)) != 0) {
-        perror("bind");
-        return 1;
+    servaddr.sin_addr.s_addr = INADDR_ANY;
+    servaddr.sin_port = htons(port);
+    if (bind(in_sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr)) != 0) {
+        perror("Failed to bind socket");
+        exit(EXIT_FAILURE);
     }
-
-    if (listen(listenfd, 5) != 0) {
-        perror("listen");
-        return 1;
+    printf("Waiting for UDP datagrams\n");
+    int max_rcv_len = 4096;
+    uint8_t recv_buf[max_rcv_len];
+    int rcv_len;
+    unsigned slen;
+    slen = sizeof(cliaddr);
+    for(;;){
+        rcv_len = recvfrom(in_sockfd, recv_buf, max_rcv_len, 0, (struct sockaddr *) &cliaddr, &slen);
+        printf("Received %d bytes\n", rcv_len);
     }
-    printf("Waiting for TCP connections on localhost:1234...\n");
+    /*
     for (;;) {
-        /* Wait for a client */
         connfd = accept(listenfd, NULL, NULL);
 
         if (connfd < 0) {
@@ -119,6 +145,8 @@ int main(int argc, char **argv) {
 
         close(connfd);
     }
+    */
+    
 
     return 0;
 }

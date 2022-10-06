@@ -2,10 +2,6 @@
 // Created by Eugenio Moro on 24/06/22.
 //
 
-#ifndef NANOPB_CMAKE_SIMPLE_E2_REQUESTS_H
-#define NANOPB_CMAKE_SIMPLE_E2_REQUESTS_H
-
-#endif //NANOPB_CMAKE_SIMPLE_E2_REQUESTS_H
 
 typedef uint32_t E2_REQID_t;
 

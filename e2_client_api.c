@@ -2,7 +2,6 @@
 // Created by Eugenio Moro on 28/06/22.
 //
 
-#include "e2_client_api.h"
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
@@ -16,13 +15,8 @@
 #include <arpa/inet.h>
 #include <stdlib.h>
 
-#include "e2.pb.h"
-#include "e2prtbf_common.h"
-#include "E2_requests.h"
-
 int socket_fd;
 struct sockaddr_in servaddr;
-E2_request* rqst_p;
 pb_ostream_t ostream;
 pb_istream_t istream;
 
@@ -32,12 +26,29 @@ bool e2_api_init(char *server_str_addr, int port) {
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);//inet_addr(server_str_addr);
     servaddr.sin_port = htons(port);
-    rqst_p = (E2_request*)malloc(E2_request_size);
-    if (rqst_p == NULL){
-        return false;
-    } else {
-        return true;
+
+    if ((socket_fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0){
+        perror("socket creation failed"); 
+        exit(EXIT_FAILURE);
     }
+    
+    E2DummyResponse rsp = E2_DUMMY_RESPONSE__INIT;
+    rsp.req_id = 100;
+    rsp.req_id = req_id;
+    //char st[] = "Hi, this is a dummy response!!";
+    rsp.mess_string =  "Hi, this is a dummy response!!";
+    rsp.result = 1; 
+
+    // encode to buffer
+    unsigned buflen = e2_dummy_response__get_packed_size(&rsp);
+    void* buf = malloc(buflen);
+    e2_dummy_response__pack(&rsp, buf);
+
+    printf("sending buffer\n");
+    int sent_len;
+    sendto(socket_fd, buf, buflen, MSG_CONFIRM, (const struct sockaddr *) &servaddr, sizeof(servaddr));
+    printf("done\n");
+
 /*    socket_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_fd == -1) {
         printf("Socket creation failed...\n");
@@ -49,7 +60,7 @@ bool e2_api_init(char *server_str_addr, int port) {
 }
 
 bool e2_api_connect() {
-    socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+    socket_fd = socket(AF_INET, SOCK_DGRAM, 0);
     if (socket_fd == -1) {
         printf("Socket creation failed...\n");
         return false;

@@ -2,10 +2,6 @@
 // Created by Eugenio Moro on 28/06/22.
 //
 
-#ifndef NANOPB_CMAKE_SIMPLE_E2_CLIENT_API_H
-#define NANOPB_CMAKE_SIMPLE_E2_CLIENT_API_H
-
-#endif //NANOPB_CMAKE_SIMPLE_E2_CLIENT_API_H
 
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -14,13 +10,10 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
+#include "proto/e2.pb-c.h"
 
-#include <pb_encode.h>
-#include <pb_decode.h>
 #include <arpa/inet.h>
 
-#include "e2.pb.h"
-#include "e2prtbf_common.h"
 #include "E2_requests.h"
 
 bool e2_api_init(char *server_str_addr, int port);
