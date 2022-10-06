@@ -7,6 +7,51 @@
 #endif
 
 #include "e2.pb-c.h"
+void   enumtest__init
+                     (Enumtest         *message)
+{
+  static const Enumtest init_value = ENUMTEST__INIT;
+  *message = init_value;
+}
+size_t enumtest__get_packed_size
+                     (const Enumtest *message)
+{
+  assert(message->base.descriptor == &enumtest__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t enumtest__pack
+                     (const Enumtest *message,
+                      uint8_t       *out)
+{
+  assert(message->base.descriptor == &enumtest__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t enumtest__pack_to_buffer
+                     (const Enumtest *message,
+                      ProtobufCBuffer *buffer)
+{
+  assert(message->base.descriptor == &enumtest__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+Enumtest *
+       enumtest__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (Enumtest *)
+     protobuf_c_message_unpack (&enumtest__descriptor,
+                                allocator, len, data);
+}
+void   enumtest__free_unpacked
+                     (Enumtest *message,
+                      ProtobufCAllocator *allocator)
+{
+  if(!message)
+    return;
+  assert(message->base.descriptor == &enumtest__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
 void   simple_message__init
                      (SimpleMessage         *message)
 {
@@ -142,6 +187,57 @@ void   e2_dummy_response__free_unpacked
   assert(message->base.descriptor == &e2_dummy_response__descriptor);
   protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
 }
+static const ProtobufCFieldDescriptor enumtest__field_descriptors[2] =
+{
+  {
+    "a",
+    1,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_INT32,
+    0,   /* quantifier_offset */
+    offsetof(Enumtest, a),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "et",
+    2,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_ENUM,
+    0,   /* quantifier_offset */
+    offsetof(Enumtest, et),
+    &etype__descriptor,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned enumtest__field_indices_by_name[] = {
+  0,   /* field[0] = a */
+  1,   /* field[1] = et */
+};
+static const ProtobufCIntRange enumtest__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 2 }
+};
+const ProtobufCMessageDescriptor enumtest__descriptor =
+{
+  PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
+  "enumtest",
+  "Enumtest",
+  "Enumtest",
+  "",
+  sizeof(Enumtest),
+  2,
+  enumtest__field_descriptors,
+  enumtest__field_indices_by_name,
+  1,  enumtest__number_ranges,
+  (ProtobufCMessageInit) enumtest__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
 static const ProtobufCFieldDescriptor simple_message__field_descriptors[1] =
 {
   {
@@ -281,4 +377,32 @@ const ProtobufCMessageDescriptor e2_dummy_response__descriptor =
   1,  e2_dummy_response__number_ranges,
   (ProtobufCMessageInit) e2_dummy_response__init,
   NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCEnumValue etype__enum_values_by_number[2] =
+{
+  { "TYPE1", "ETYPE__TYPE1", 1 },
+  { "TYPE2", "ETYPE__TYPE2", 2 },
+};
+static const ProtobufCIntRange etype__value_ranges[] = {
+{1, 0},{0, 2}
+};
+static const ProtobufCEnumValueIndex etype__enum_values_by_name[2] =
+{
+  { "TYPE1", 0 },
+  { "TYPE2", 1 },
+};
+const ProtobufCEnumDescriptor etype__descriptor =
+{
+  PROTOBUF_C__ENUM_DESCRIPTOR_MAGIC,
+  "etype",
+  "etype",
+  "Etype",
+  "",
+  2,
+  etype__enum_values_by_number,
+  2,
+  etype__enum_values_by_name,
+  1,
+  etype__value_ranges,
+  NULL,NULL,NULL,NULL   /* reserved[1234] */
 };

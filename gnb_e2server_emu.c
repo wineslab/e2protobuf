@@ -98,6 +98,27 @@ int main(int argc, char **argv) {
     int port = 6655;
 
 
+    // enum test
+    Enumtest enum_msg = ENUMTEST__INIT;
+    enum_msg.a = 7;
+    enum_msg.et =  ETYPE__TYPE2;
+
+    unsigned buflen = enumtest__get_packed_size(&enum_msg);
+    void* buf = malloc(buflen);
+    enumtest__pack(&enum_msg,buf);
+
+    Enumtest *__attribute__((unused)) dec = enumtest__unpack(NULL, buflen, buf);
+
+    
+    printf("type in struct: %d\n", (int)dec->et);
+    if ((int) dec->et == (int)ETYPE__TYPE1){
+        printf("type 1\n");
+    } else if ((int)dec->et == (int)ETYPE__TYPE2) {
+        printf("type 2\n");
+    }
+    return 0;
+    
+
     printf("Starting e2server emulator\n");
     /* Listen on localhost:port for UDP connections */
 

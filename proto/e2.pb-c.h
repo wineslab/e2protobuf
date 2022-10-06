@@ -15,6 +15,7 @@ PROTOBUF_C__BEGIN_DECLS
 #endif
 
 
+typedef struct Enumtest Enumtest;
 typedef struct SimpleMessage SimpleMessage;
 typedef struct E2Request E2Request;
 typedef struct E2DummyResponse E2DummyResponse;
@@ -22,8 +23,24 @@ typedef struct E2DummyResponse E2DummyResponse;
 
 /* --- enums --- */
 
+typedef enum _Etype {
+  ETYPE__TYPE1 = 1,
+  ETYPE__TYPE2 = 2
+    PROTOBUF_C__FORCE_ENUM_TO_BE_INT_SIZE(ETYPE)
+} Etype;
 
 /* --- messages --- */
+
+struct  Enumtest
+{
+  ProtobufCMessage base;
+  int32_t a;
+  Etype et;
+};
+#define ENUMTEST__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&enumtest__descriptor) \
+    , 0, ETYPE__TYPE2 }
+
 
 struct  SimpleMessage
 {
@@ -57,6 +74,25 @@ struct  E2DummyResponse
     , 0, NULL, 0 }
 
 
+/* Enumtest methods */
+void   enumtest__init
+                     (Enumtest         *message);
+size_t enumtest__get_packed_size
+                     (const Enumtest   *message);
+size_t enumtest__pack
+                     (const Enumtest   *message,
+                      uint8_t             *out);
+size_t enumtest__pack_to_buffer
+                     (const Enumtest   *message,
+                      ProtobufCBuffer     *buffer);
+Enumtest *
+       enumtest__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   enumtest__free_unpacked
+                     (Enumtest *message,
+                      ProtobufCAllocator *allocator);
 /* SimpleMessage methods */
 void   simple_message__init
                      (SimpleMessage         *message);
@@ -116,6 +152,9 @@ void   e2_dummy_response__free_unpacked
                       ProtobufCAllocator *allocator);
 /* --- per-message closures --- */
 
+typedef void (*Enumtest_Closure)
+                 (const Enumtest *message,
+                  void *closure_data);
 typedef void (*SimpleMessage_Closure)
                  (const SimpleMessage *message,
                   void *closure_data);
@@ -131,6 +170,8 @@ typedef void (*E2DummyResponse_Closure)
 
 /* --- descriptors --- */
 
+extern const ProtobufCEnumDescriptor    etype__descriptor;
+extern const ProtobufCMessageDescriptor enumtest__descriptor;
 extern const ProtobufCMessageDescriptor simple_message__descriptor;
 extern const ProtobufCMessageDescriptor e2_request__descriptor;
 extern const ProtobufCMessageDescriptor e2_dummy_response__descriptor;

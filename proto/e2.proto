@@ -1,5 +1,15 @@
 syntax = "proto2";
 
+enum etype {
+    TYPE1 = 1;
+    TYPE2 = 2;
+}
+
+message enumtest {
+    required int32 a = 1;
+    required etype et = 2;
+}
+
 message SimpleMessage {
     required int32 lucky_number = 1;
 }
