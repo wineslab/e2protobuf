@@ -20,12 +20,12 @@ set(CMAKE_EXE_LINKER_FLAGS "${PROTOBUF_LINK_FLAG}")
 
 
 #add_executable(simple simple.c ${PROTO_SRCS} ${PROTO_HDRS} E2_requests.h)
-add_executable(gnb_e2server_emu gnb_e2server_emu.c ${PROTO_SRCS} ${PROTO_HDRS} E2_requests.h proto/e2.pb-c.c proto/e2.pb-c.h)# common/e2prtbf_common.c common/e2prtbf_common.h)
-add_executable(e2_term_emu e2term_emu.c proto/e2.pb-c.c proto/e2.pb-c.h ${PROTO_SRCS} ${PROTO_HDRS})# E2_requests.h e2_client_api.h e2_client_api.c)# common/e2prtbf_common.c common/e2prtbf_common.h)
+add_executable(gnb_e2server_emu gnb_e2server_emu.c E2_requests.h oai-oran-protolib/ran_messages.pb-c.h oai-oran-protolib/ran_messages.pb-c.c gnb_message_handlers.c gnb_message_handlers.h)
+#add_executable(e2_term_emu e2term_emu.c proto/e2.pb-c.c proto/e2.pb-c.h ${PROTO_SRCS} ${PROTO_HDRS})# E2_requests.h e2_client_api.h e2_client_api.c)# common/e2prtbf_common.c common/e2prtbf_common.h)
 
 
 target_link_libraries(gnb_e2server_emu protobuf-c)
-target_link_libraries(e2_term_emu protobuf-c)
+#target_link_libraries(e2_term_emu protobuf-c)
 
 macro(print_all_variables)
     message(STATUS "print_all_variables------------------------------------------{")

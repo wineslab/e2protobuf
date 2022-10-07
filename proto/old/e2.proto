@@ -25,3 +25,12 @@ message E2_dummy_response {
 }
 
 
+message MapFieldEntry {
+  required int32 key = 1;
+  required int32 value = 2;
+}
+
+message map_mess{
+    repeated MapFieldEntry map_field = 1;
+}
+

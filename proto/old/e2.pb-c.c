@@ -187,6 +187,96 @@ void   e2_dummy_response__free_unpacked
   assert(message->base.descriptor == &e2_dummy_response__descriptor);
   protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
 }
+void   map_field_entry__init
+                     (MapFieldEntry         *message)
+{
+  static const MapFieldEntry init_value = MAP_FIELD_ENTRY__INIT;
+  *message = init_value;
+}
+size_t map_field_entry__get_packed_size
+                     (const MapFieldEntry *message)
+{
+  assert(message->base.descriptor == &map_field_entry__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t map_field_entry__pack
+                     (const MapFieldEntry *message,
+                      uint8_t       *out)
+{
+  assert(message->base.descriptor == &map_field_entry__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t map_field_entry__pack_to_buffer
+                     (const MapFieldEntry *message,
+                      ProtobufCBuffer *buffer)
+{
+  assert(message->base.descriptor == &map_field_entry__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+MapFieldEntry *
+       map_field_entry__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (MapFieldEntry *)
+     protobuf_c_message_unpack (&map_field_entry__descriptor,
+                                allocator, len, data);
+}
+void   map_field_entry__free_unpacked
+                     (MapFieldEntry *message,
+                      ProtobufCAllocator *allocator)
+{
+  if(!message)
+    return;
+  assert(message->base.descriptor == &map_field_entry__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
+void   map_mess__init
+                     (MapMess         *message)
+{
+  static const MapMess init_value = MAP_MESS__INIT;
+  *message = init_value;
+}
+size_t map_mess__get_packed_size
+                     (const MapMess *message)
+{
+  assert(message->base.descriptor == &map_mess__descriptor);
+  return protobuf_c_message_get_packed_size ((const ProtobufCMessage*)(message));
+}
+size_t map_mess__pack
+                     (const MapMess *message,
+                      uint8_t       *out)
+{
+  assert(message->base.descriptor == &map_mess__descriptor);
+  return protobuf_c_message_pack ((const ProtobufCMessage*)message, out);
+}
+size_t map_mess__pack_to_buffer
+                     (const MapMess *message,
+                      ProtobufCBuffer *buffer)
+{
+  assert(message->base.descriptor == &map_mess__descriptor);
+  return protobuf_c_message_pack_to_buffer ((const ProtobufCMessage*)message, buffer);
+}
+MapMess *
+       map_mess__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data)
+{
+  return (MapMess *)
+     protobuf_c_message_unpack (&map_mess__descriptor,
+                                allocator, len, data);
+}
+void   map_mess__free_unpacked
+                     (MapMess *message,
+                      ProtobufCAllocator *allocator)
+{
+  if(!message)
+    return;
+  assert(message->base.descriptor == &map_mess__descriptor);
+  protobuf_c_message_free_unpacked ((ProtobufCMessage*)message, allocator);
+}
 static const ProtobufCFieldDescriptor enumtest__field_descriptors[2] =
 {
   {
@@ -376,6 +466,95 @@ const ProtobufCMessageDescriptor e2_dummy_response__descriptor =
   e2_dummy_response__field_indices_by_name,
   1,  e2_dummy_response__number_ranges,
   (ProtobufCMessageInit) e2_dummy_response__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCFieldDescriptor map_field_entry__field_descriptors[2] =
+{
+  {
+    "key",
+    1,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_INT32,
+    0,   /* quantifier_offset */
+    offsetof(MapFieldEntry, key),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+  {
+    "value",
+    2,
+    PROTOBUF_C_LABEL_REQUIRED,
+    PROTOBUF_C_TYPE_INT32,
+    0,   /* quantifier_offset */
+    offsetof(MapFieldEntry, value),
+    NULL,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned map_field_entry__field_indices_by_name[] = {
+  0,   /* field[0] = key */
+  1,   /* field[1] = value */
+};
+static const ProtobufCIntRange map_field_entry__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 2 }
+};
+const ProtobufCMessageDescriptor map_field_entry__descriptor =
+{
+  PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
+  "MapFieldEntry",
+  "MapFieldEntry",
+  "MapFieldEntry",
+  "",
+  sizeof(MapFieldEntry),
+  2,
+  map_field_entry__field_descriptors,
+  map_field_entry__field_indices_by_name,
+  1,  map_field_entry__number_ranges,
+  (ProtobufCMessageInit) map_field_entry__init,
+  NULL,NULL,NULL    /* reserved[123] */
+};
+static const ProtobufCFieldDescriptor map_mess__field_descriptors[1] =
+{
+  {
+    "map_field",
+    1,
+    PROTOBUF_C_LABEL_REPEATED,
+    PROTOBUF_C_TYPE_MESSAGE,
+    offsetof(MapMess, n_map_field),
+    offsetof(MapMess, map_field),
+    &map_field_entry__descriptor,
+    NULL,
+    0,             /* flags */
+    0,NULL,NULL    /* reserved1,reserved2, etc */
+  },
+};
+static const unsigned map_mess__field_indices_by_name[] = {
+  0,   /* field[0] = map_field */
+};
+static const ProtobufCIntRange map_mess__number_ranges[1 + 1] =
+{
+  { 1, 0 },
+  { 0, 1 }
+};
+const ProtobufCMessageDescriptor map_mess__descriptor =
+{
+  PROTOBUF_C__MESSAGE_DESCRIPTOR_MAGIC,
+  "map_mess",
+  "MapMess",
+  "MapMess",
+  "",
+  sizeof(MapMess),
+  1,
+  map_mess__field_descriptors,
+  map_mess__field_indices_by_name,
+  1,  map_mess__number_ranges,
+  (ProtobufCMessageInit) map_mess__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
 static const ProtobufCEnumValue etype__enum_values_by_number[2] =

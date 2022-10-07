@@ -19,6 +19,8 @@ typedef struct Enumtest Enumtest;
 typedef struct SimpleMessage SimpleMessage;
 typedef struct E2Request E2Request;
 typedef struct E2DummyResponse E2DummyResponse;
+typedef struct MapFieldEntry MapFieldEntry;
+typedef struct MapMess MapMess;
 
 
 /* --- enums --- */
@@ -39,7 +41,7 @@ struct  Enumtest
 };
 #define ENUMTEST__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&enumtest__descriptor) \
-    , 0, ETYPE__TYPE2 }
+    , 0, ETYPE__TYPE1 }
 
 
 struct  SimpleMessage
@@ -72,6 +74,28 @@ struct  E2DummyResponse
 #define E2_DUMMY_RESPONSE__INIT \
  { PROTOBUF_C_MESSAGE_INIT (&e2_dummy_response__descriptor) \
     , 0, NULL, 0 }
+
+
+struct  MapFieldEntry
+{
+  ProtobufCMessage base;
+  int32_t key;
+  int32_t value;
+};
+#define MAP_FIELD_ENTRY__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&map_field_entry__descriptor) \
+    , 0, 0 }
+
+
+struct  MapMess
+{
+  ProtobufCMessage base;
+  size_t n_map_field;
+  MapFieldEntry **map_field;
+};
+#define MAP_MESS__INIT \
+ { PROTOBUF_C_MESSAGE_INIT (&map_mess__descriptor) \
+    , 0,NULL }
 
 
 /* Enumtest methods */
@@ -150,6 +174,44 @@ E2DummyResponse *
 void   e2_dummy_response__free_unpacked
                      (E2DummyResponse *message,
                       ProtobufCAllocator *allocator);
+/* MapFieldEntry methods */
+void   map_field_entry__init
+                     (MapFieldEntry         *message);
+size_t map_field_entry__get_packed_size
+                     (const MapFieldEntry   *message);
+size_t map_field_entry__pack
+                     (const MapFieldEntry   *message,
+                      uint8_t             *out);
+size_t map_field_entry__pack_to_buffer
+                     (const MapFieldEntry   *message,
+                      ProtobufCBuffer     *buffer);
+MapFieldEntry *
+       map_field_entry__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   map_field_entry__free_unpacked
+                     (MapFieldEntry *message,
+                      ProtobufCAllocator *allocator);
+/* MapMess methods */
+void   map_mess__init
+                     (MapMess         *message);
+size_t map_mess__get_packed_size
+                     (const MapMess   *message);
+size_t map_mess__pack
+                     (const MapMess   *message,
+                      uint8_t             *out);
+size_t map_mess__pack_to_buffer
+                     (const MapMess   *message,
+                      ProtobufCBuffer     *buffer);
+MapMess *
+       map_mess__unpack
+                     (ProtobufCAllocator  *allocator,
+                      size_t               len,
+                      const uint8_t       *data);
+void   map_mess__free_unpacked
+                     (MapMess *message,
+                      ProtobufCAllocator *allocator);
 /* --- per-message closures --- */
 
 typedef void (*Enumtest_Closure)
@@ -164,6 +226,12 @@ typedef void (*E2Request_Closure)
 typedef void (*E2DummyResponse_Closure)
                  (const E2DummyResponse *message,
                   void *closure_data);
+typedef void (*MapFieldEntry_Closure)
+                 (const MapFieldEntry *message,
+                  void *closure_data);
+typedef void (*MapMess_Closure)
+                 (const MapMess *message,
+                  void *closure_data);
 
 /* --- services --- */
 
@@ -175,6 +243,8 @@ extern const ProtobufCMessageDescriptor enumtest__descriptor;
 extern const ProtobufCMessageDescriptor simple_message__descriptor;
 extern const ProtobufCMessageDescriptor e2_request__descriptor;
 extern const ProtobufCMessageDescriptor e2_dummy_response__descriptor;
+extern const ProtobufCMessageDescriptor map_field_entry__descriptor;
+extern const ProtobufCMessageDescriptor map_mess__descriptor;
 
 PROTOBUF_C__END_DECLS
 
