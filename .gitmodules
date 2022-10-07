@@ -1,0 +1,3 @@
+[submodule "oai-oran-protolib"]
+	path = oai-oran-protolib
+	url = https://github.com/EugenioMoro/oai-oran-protolib.git
