@@ -93,6 +93,10 @@ void handle_connection(int connfd) {
 
 void handle_master_message(void* buf, int buflen, int out_socket, struct sockaddr_in servaddr){
     RANMessage* in_mess = ran_message__unpack(NULL, (size_t)buflen, buf);
+    if (!in_mess){
+        printf("error decoding received message \n");
+        return;
+    }
     printf("ran message id %d\n", in_mess->msg_type);
     switch(in_mess->msg_type){
         case RAN_MESSAGE_TYPE__SUBSCRIPTION:
@@ -101,11 +105,11 @@ void handle_master_message(void* buf, int buflen, int out_socket, struct sockadd
             break;
         case RAN_MESSAGE_TYPE__INDICATION_REQUEST:
             printf("Indication request message received\n");
-            handle_indication_request(in_mess);
+            handle_indication_request(in_mess, out_socket, servaddr);
             break;
         case RAN_MESSAGE_TYPE__INDICATION_RESPONSE:
             printf("Indication response message received\n");
-            handle_indication_response(in_mess);
+            handle_indication_response(in_mess, out_socket, servaddr);
             break;
         case RAN_MESSAGE_TYPE__CONTROL:
             printf("Control message received\n");
@@ -119,10 +123,10 @@ void handle_master_message(void* buf, int buflen, int out_socket, struct sockadd
 int main(int argc, char **argv) {
     int in_sockfd, out_sockfd;
 
-    struct sockaddr_in servaddr,cliaddr;
+    struct sockaddr_in out_sockaddr,in_sockaddr;
     int reuse = 1;
     int in_port = 6655;
-    int out_port = 6656;    
+    int out_port = 6600;    
 
     printf("Starting e2server emulator\n");
     /* Listen on localhost:port for UDP connections */
@@ -141,21 +145,21 @@ int main(int argc, char **argv) {
     setsockopt(out_sockfd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
 
     // bind to localhost for both sockets
-    memset(&servaddr, 0, sizeof(servaddr));
-    memset(&cliaddr, 0, sizeof(cliaddr));
+    memset(&out_sockaddr, 0, sizeof(out_sockaddr));
+    memset(&in_sockaddr, 0, sizeof(in_sockaddr));
     
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = INADDR_ANY;
-    servaddr.sin_port = htons(in_port);
-    if (bind(in_sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr)) != 0) {
-        perror("Failed to bind in socket");
-        exit(EXIT_FAILURE);
-    }
+    out_sockaddr.sin_family = AF_INET;
+    out_sockaddr.sin_addr.s_addr = INADDR_ANY;
+    out_sockaddr.sin_port = htons(out_port);
+    //if (bind(in_sockfd, (struct sockaddr *) &out_sockaddr, sizeof(out_sockaddr)) != 0) {
+    //    perror("Failed to bind in socket");
+    //    exit(EXIT_FAILURE);
+    //}
 
-    cliaddr.sin_family = AF_INET;
-    cliaddr.sin_addr.s_addr = INADDR_ANY;
-    cliaddr.sin_port = htons(out_port);
-    if (bind(out_sockfd, (struct sockaddr *) &cliaddr, sizeof(cliaddr)) != 0) {
+    in_sockaddr.sin_family = AF_INET;
+    in_sockaddr.sin_addr.s_addr = INADDR_ANY;
+    in_sockaddr.sin_port = htons(in_port);
+    if (bind(in_sockfd, (struct sockaddr *) &in_sockaddr, sizeof(in_sockaddr)) != 0) {
         perror("Failed to bind out socket");
         exit(EXIT_FAILURE);
     }
@@ -167,11 +171,11 @@ int main(int argc, char **argv) {
     uint8_t recv_buf[max_rcv_len];
     int rcv_len;
     unsigned slen;
-    slen = sizeof(cliaddr);
+    slen = sizeof(in_sockaddr);
     for(;;){
-        rcv_len = recvfrom(in_sockfd, recv_buf, max_rcv_len, 0, (struct sockaddr *) &cliaddr, &slen);
+        rcv_len = recvfrom(in_sockfd, recv_buf, max_rcv_len, 0, (struct sockaddr *) &in_sockaddr, &slen);
         printf("Received %d bytes\n", rcv_len);
-        handle_master_message(recv_buf, rcv_len, out_sockfd, servaddr);   
+        handle_master_message(recv_buf, rcv_len, out_sockfd, out_sockaddr);   
     }
     /*
     for (;;) {
