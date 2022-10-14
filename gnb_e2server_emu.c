@@ -14,87 +14,16 @@
 #include "E2_requests.h"
 #include "gnb_message_handlers.h"
 
-/* This callback function will be called during the encoding.
- * It will write out any number of FileInfo entries, without consuming unnecessary memory.
- * This is accomplished by fetching the filenames one at a time and encoding them
- * immediately.
- */
-
-void build_dummy_response(E2_REQID_t req_id, int connfd){
-    /*
-    E2DummyResponse rsp = E2_DUMMY_RESPONSE__INIT;
-    rsp.req_id = req_id;
-    rsp.mess_string = "ciao";
-    rsp.result = 0;
-*/
-}
-/*
-void build_send_dummy_response(E2_REQID_t req_id, int connfd){
-    // build response
-    E2DummyResponse rsp = E2_DUMMY_RESPONSE__INIT;
-    rsp.req_id = 100;
-    rsp.req_id = req_id;
-    //char st[] = "Hi, this is a dummy response!!";
-    rsp.mess_string =  "Hi, this is a dummy response!!";
-    rsp.result = 1; 
-
-    // encode to buffer
-    unsigned buflen = e2_dummy_response__get_packed_size(&rsp);
-    void* buf = malloc(buflen);
-    e2_dummy_response__pack(&rsp, buf);
-    printf("dummy built and packed to buffer\n");
-    E2DummyResponse* decmsg;
-    decmsg = e2_dummy_response__unpack(NULL, buflen, buf);
-    printf("decoded string %s\n", decmsg->mess_string);
-    
-}
-*/
-
-/*
-void ship_response(pb_msgdesc_t msg_descriptor, void* response, int connfd){
-    pb_ostream_t output = pb_ostream_from_socket(connfd);
-    if (!pb_encode_delimited(&output, &msg_descriptor, response)) {
-        printf("Encoding failed: %s\n", PB_GET_ERROR(&output));
-    }
-    // printf("Encoded in %lu bytes\n", output.bytes_written);
-}
-*/
-
-void handle_connection(int connfd) {
-/*
-    E2_request request = {};
-    pb_istream_t input = pb_istream_from_socket(connfd);
-    if (!pb_decode_delimited(&input, E2_request_fields, &request)) {
-        printf("Decode failed: %s\n", PB_GET_ERROR(&input));
-        return;
-    }
-    printf("Received E2 request id %d\n", request.req_id);
-    switch (request.req_id++) {
-        case E2_REQID_DUMMY1:{
-            E2_dummy_response* rsp = malloc(E2_dummy_response_size);
-            build_dummy_response(E2_REQID_DUMMY1,rsp, connfd);
-            ship_response(E2_dummy_response_msg,rsp,connfd);
-            free(rsp);
-            break;
-        }
-        case E2_REQID_DUMMY2: {
-            E2_dummy_response *rsp = malloc(E2_dummy_response_size);
-            build_dummy_response(E2_REQID_DUMMY2, rsp, connfd);
-            ship_response(E2_dummy_response_msg, rsp, connfd);
-            free(rsp);
-            break;
-        }
-        default:
-            printf("Unrecognized request id %d\n",request.req_id);
-            break;
-    }
-    */
-}
 
 void handle_master_message(void* buf, int buflen, int out_socket, struct sockaddr_in servaddr){
     RANMessage* in_mess = ran_message__unpack(NULL, (size_t)buflen, buf);
     if (!in_mess){
-        printf("error decoding received message \n");
+        printf("error decoding received message, printing for debug:\n");
+        for(int i=0;i<buflen; i++){
+            uint8_t* tempbuf = (uint8_t*) buf;
+            printf(" %hhx ", tempbuf[i]);
+        }
+        printf("\n");
         return;
     }
     printf("ran message id %d\n", in_mess->msg_type);
@@ -174,6 +103,8 @@ int main(int argc, char **argv) {
     slen = sizeof(in_sockaddr);
     for(;;){
         rcv_len = recvfrom(in_sockfd, recv_buf, max_rcv_len, 0, (struct sockaddr *) &in_sockaddr, &slen);
+        printf("\n");
+        printf("-------------------------------\n");
         printf("Received %d bytes\n", rcv_len);
         handle_master_message(recv_buf, rcv_len, out_sockfd, out_sockaddr);   
     }
