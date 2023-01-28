@@ -18,3 +18,5 @@ const char* get_enum_name(RANParameter ran_par_enum);
 void ran_write(RANParamMapEntry* target_param_map_entry);
 char* ran_read(RANParameter ran_par_enum);
 char* itoa(int i);
+UeListM* get_ue_list();
+void ran_read_new(RANParameter ran_par_enum, RANParamMapEntry* map_entry);

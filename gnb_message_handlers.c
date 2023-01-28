@@ -28,8 +28,11 @@ void handle_indication_response(RANMessage* in_mess, int out_socket, sockaddr_in
     for(i=0; i<in_mess->ran_indication_request->n_target_params; i++){
         map[i] = malloc(sizeof(RANParamMapEntry));
         ran_param_map_entry__init(map[i]);
+        printf("alora\n");
         map[i]->key=in_mess->ran_indication_request->target_params[i];
-        map[i]->value = ran_read(map[i]->key);
+        //map[i]->string_value = "ciao";
+        // map[i]->value = ran_read(map[i]->key);
+        ran_read_new(map[i]->key, map[i]);
     }
     rsp.n_param_map=in_mess->ran_indication_request->n_target_params;
     rsp.param_map=map;
@@ -57,7 +60,7 @@ void handle_control(RANMessage* in_mess){
     for(int i=0; i<in_mess->ran_control_request->n_target_param_map; i++){
         printf("Applying target parameter %s with value %s\n",\
         get_enum_name(in_mess->ran_control_request->target_param_map[i]->key),\
-        in_mess->ran_control_request->target_param_map[i]->value);
+        in_mess->ran_control_request->target_param_map[i]->string_value);
         ran_write(in_mess->ran_control_request->target_param_map[i]);
     }
 }
@@ -80,10 +83,10 @@ void ran_write(RANParamMapEntry* target_param_map_entry){
     switch (target_param_map_entry->key)
     {
     case RAN_PARAMETER__GNB_ID:
-        gnb_id = atoi(target_param_map_entry->value);
+        gnb_id = atoi(target_param_map_entry->string_value);
         break;
     case RAN_PARAMETER__SOMETHING:
-        something = atoi(target_param_map_entry->value);
+        something = atoi(target_param_map_entry->string_value);
         break;
     default:
         printf("ERROR: cannot write RAN, unrecognized target param %d\n", target_param_map_entry->key);
@@ -105,6 +108,27 @@ char* ran_read(RANParameter ran_par_enum){
     }
 }
 
+void ran_read_new(RANParameter ran_par_enum, RANParamMapEntry* map_entry){
+    switch (ran_par_enum)
+    {
+    case RAN_PARAMETER__GNB_ID:
+        map_entry->value_case=RAN_PARAM_MAP_ENTRY__VALUE_STRING_VALUE;
+        map_entry->string_value = itoa(gnb_id);
+        break;
+    case RAN_PARAMETER__SOMETHING:
+        map_entry->value_case=RAN_PARAM_MAP_ENTRY__VALUE_STRING_VALUE;
+        map_entry->string_value = itoa(something);
+        break;
+    case RAN_PARAMETER__UE_LIST:
+        map_entry->value_case=RAN_PARAM_MAP_ENTRY__VALUE_UE_LIST;
+        map_entry->ue_list = get_ue_list();
+        break;
+    default:
+        printf("unrecognized param %d\n",ran_par_enum);
+        assert(0!=0);
+    }
+}
+
 char* itoa(int i){
     int length = (snprintf(NULL, 0,"%d",i)+1);
     char* ret = malloc(length*sizeof(char));
@@ -112,3 +136,38 @@ char* itoa(int i){
     return ret;
 }
 
+UeListM* get_ue_list(){
+    // init ue list
+    UeListM* ue_list_m = malloc(sizeof(UeListM));
+    ue_list_m__init(ue_list_m);
+
+    // insert n ues
+    ue_list_m->connected_ues = 2;
+    ue_list_m->n_ue_info = 2;
+
+    // build list of ue_info_m
+    UeInfoM** ue_info_list;
+    ue_info_list = malloc(sizeof(UeInfoM)*2);
+    for(int i = 0; i<2; i++){
+        ue_info_list[i] = malloc(sizeof(UeInfoM));
+        ue_info_m__init(ue_info_list[i]);
+        ue_info_list[i]->rnti=i;
+        ue_info_list[i]->dlsch_errors=i;
+        ue_info_list[i]->dlsch_total_bytes=i;
+        ue_info_list[i]->dlsch_current_bytes=i;
+        ue_info_list[i]->ulsch_errors=i;
+        ue_info_list[i]->ulsch_total_bytes_rx=i;
+        ue_info_list[i]->num_rsrp_meas=i;
+        ue_info_list[i]->sched_ul_bytes=i;
+        ue_info_list[i]->estimated_ul_buffer=i;
+        ue_info_list[i]->num_total_bytes=i;
+        ue_info_list[i]->raw_rssi=i;
+        ue_info_list[i]->pusch_snrx10=i;
+        ue_info_list[i]->pucch_snrx10=i;
+        ue_info_list[i]->ul_rssi=i;
+    }
+    // assgin ue info pointer
+    ue_list_m->ue_info = ue_info_list;
+
+    return ue_list_m;
+}
