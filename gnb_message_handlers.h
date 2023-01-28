@@ -1,6 +1,6 @@
-#include "oai-oran-protolib/ran_messages.pb-c.h"
+#include "oai-oran-protolib/builds/ran_messages.pb-c.h"
 #include <stdlib.h>
-#include "oai-oran-protolib/ran_messages.pb-c.h"
+#include "oai-oran-protolib/builds/ran_messages.pb-c.h"
 #include <assert.h>
 #include <stdio.h>
 #include <sys/socket.h>

@@ -69,6 +69,8 @@ const char* get_enum_name(RANParameter ran_par_enum){
         return "gnb_id";
     case RAN_PARAMETER__SOMETHING:
         return "something";
+    case RAN_PARAMETER__UE_LIST:
+        return "ue_list";
     default:
         return "unrecognized param";
     }
@@ -95,6 +97,8 @@ char* ran_read(RANParameter ran_par_enum){
         return itoa(gnb_id);
     case RAN_PARAMETER__SOMETHING:
         return itoa(something);
+    case RAN_PARAMETER__UE_LIST:
+	return "wip";
     default:
         printf("unrecognized param %d\n",ran_par_enum);
         assert(0!=0);
@@ -107,3 +111,4 @@ char* itoa(int i){
     sprintf(ret, "%d", i);
     return ret;
 }
+

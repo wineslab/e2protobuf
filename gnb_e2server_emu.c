@@ -10,7 +10,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "oai-oran-protolib/ran_messages.pb-c.h"
+#include "oai-oran-protolib/builds/ran_messages.pb-c.h"
 #include "E2_requests.h"
 #include "gnb_message_handlers.h"
 
